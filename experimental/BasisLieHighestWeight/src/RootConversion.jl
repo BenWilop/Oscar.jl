@@ -77,6 +77,7 @@ function get_CartanMatrix(type::String, rank::Int)::Matrix{QQFieldElem}
     L = GAP.Globals.SimpleLieAlgebra(GAP.Obj(type), rank, GAP.Globals.Rationals)
     R = GAP.Globals.RootSystem(L)
     C = Matrix{QQFieldElem}(GAP.Globals.CartanMatrix(R))
+    C = transpose(C)
     # println("C: ", C)
     return C
 end

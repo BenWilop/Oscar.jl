@@ -428,8 +428,8 @@ function basis_lie_highest_weight_fflv(
     BasisLieHighestWeight.basis_lie_highest_weight_fflv("A", 3, [1,1,1])
     """
     monomial_order = "oplex"
-    # operators = all positive roots, same ordering as GAP uses
-    get_operators = (lie_algebra, chevalley_basis) -> get_operators_normal(lie_algebra, chevalley_basis, "regular")
+    # operators = all positive roots, reversed ordering as GAP uses
+    get_operators = (lie_algebra, chevalley_basis) -> reverse(get_operators_normal(lie_algebra, chevalley_basis, "regular"))
     return basis_lie_highest_weight_compute(type, rank, highest_weight, get_operators, monomial_order, cache_size)
 end
 
