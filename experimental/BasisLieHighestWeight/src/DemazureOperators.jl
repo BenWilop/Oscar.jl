@@ -3,6 +3,8 @@
 
 # ZZ_x, x = PolynomialRing(ZZ, 3)
 
+include("./RootConversion.jl")
+
 function monomial_from_degrees(
     ZZ_x::AbstractAlgebra.Generic.LaurentMPolyWrapRing{ZZRingElem, ZZMPolyRing}, 
     degs::Vector{Int}
@@ -14,7 +16,7 @@ function monomial_from_degrees(
         throw(ArgumentError("Length of degree vector must match the number of variables in the polynomial ring!"))
     end
     
-    monomial = prod(v^d for (v, d) in zip(vars, degs))
+    monomial = prod(v^Int(d) for (v, d) in zip(vars, degs))
     return monomial
 end
 
@@ -80,26 +82,30 @@ function demazure_operators_summary(
     lambda::Vector{Int},
     weyl_word::Vector{Int}
     )
-    alpha_list = [ [i == j ? 1 : 0 for i in 1:rank] for j in 1:rank] # [..., [0, .., 0, 1, 0, ..., 0], ...]
+    alpha_list = [ [i == j ? QQ(1) : QQ(0) for i in 1:rank] for j in 1:rank] # [..., [0, .., 0, 1, 0, ..., 0], ...]
     alpha_wi_list = [alpha_to_w(type, rank, alpha_i) for alpha_i in alpha_list]
+    alpha_wi_list = [Int.(x) for x in alpha_wi_list]
+
     ZZ_x, x = LaurentPolynomialRing(ZZ, length(lambda))
     sub_word = []
+
     p = monomial_from_degrees(ZZ_x, lambda)
     for alpha_i in reverse(weyl_word)
         append!(sub_word, alpha_i)
         p = demazure_operator(ZZ_x, alpha_i, alpha_wi_list[alpha_i], p)
-        println("")
+        # println("")
         println("sub_word: ", sub_word)
-        println("p: ", p)
+        # println("p: ", p)
         for term in terms(p)
-            println(leading_exponent_vector(term), ": ", leading_coefficient(term))
+             println(leading_exponent_vector(term), ": ", leading_coefficient(term))
         end
+        println(length(p))
     end
 
-    println("")
-    println("Dimension calculated through basis_lie_highest_weight for full word:")
-    lie_algebra = LieAlgebraStructure(type, rank)
-    println(get_dim_weightspace(lie_algebra, lambda))
+    # println("")
+    # println("Dimension calculated through basis_lie_highest_weight for full word:")
+    lie_algebra = BasisLieHighestWeight.LieAlgebraStructure(type, rank)
+    # println(BasisLieHighestWeight.get_dim_weightspace(lie_algebra, [ZZ(x) for x in lambda]))
 end
 
 function demazure_operator_monom_sum(
